@@ -1,19 +1,27 @@
 package com.example.DELABARRERA_DIEGO.controller;
 
 
+import com.example.DELABARRERA_DIEGO.entities.DTO.TurnoDTO;
 import com.example.DELABARRERA_DIEGO.entities.Turno;
+import com.example.DELABARRERA_DIEGO.exception.MethodArgumentNotValidException;
+import com.example.DELABARRERA_DIEGO.exception.ResourceNotFoundException;
 import com.example.DELABARRERA_DIEGO.service.OdontologoService;
 import com.example.DELABARRERA_DIEGO.service.PacienteService;
 import com.example.DELABARRERA_DIEGO.service.TurnoService;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/turnos")
+@CrossOrigin
 public class TurnoController {
     @Autowired
     private TurnoService turnoService;
@@ -24,51 +32,32 @@ public class TurnoController {
 
 
     @PostMapping
-    public ResponseEntity<Turno> regisrarTurno(@RequestBody Turno turno) {
-        if (odontologoService.buscarOdontologoPorId(turno.getOdontologo().getId()).isPresent() && pacienteService.buscarPacientePorId(turno.getPaciente().getId()).isPresent()) {
-            return ResponseEntity.ok(turnoService.guardarTurno(turno));
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<?> registrarTurno(@RequestBody TurnoDTO turnoDTO) throws MethodArgumentNotValidException {
+        turnoService.guardarTurno(turnoDTO);
+        return ResponseEntity.ok(turnoDTO);
+    }
+
+
+    @GetMapping("/{id}")
+    public TurnoDTO buscarTurnoPorId(@PathVariable Long id) throws ResourceNotFoundException {
+        return turnoService.buscarTurnoPorId(id);
     }
 
     @GetMapping
-    public ResponseEntity<List<Turno>> listarTurnos() {
-        return ResponseEntity.ok(turnoService.listarTurnos());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Turno> buscarTurnoPorId(@PathVariable Long id) {
-        Optional<Turno> turnoBuscado = turnoService.buscarTurnoPorId(id);
-        if (turnoBuscado.isPresent()) {
-            return ResponseEntity.ok(turnoBuscado.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public Collection<TurnoDTO> listarTurnos() throws ResourceNotFoundException {
+        return turnoService.listarTurnos();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarTurno(@PathVariable Long id) {
-        Optional<Turno> turnoBuscado = turnoService.buscarTurnoPorId(id);
-        if (turnoBuscado.isPresent()) {
-            turnoService.eliminarTurno(id);
-            return ResponseEntity.ok("Se eliminó correctamente el turno con ID: " + id);
-        } else {
-            return ResponseEntity.badRequest().body("No existe el turno con ID: " + id);
-        }
+    public ResponseEntity<?> eliminarTurnoPorId(@PathVariable Long id) throws ResourceNotFoundException {
+        turnoService.eliminarTurno(id);
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PutMapping
-    public ResponseEntity<String> actualizarturno(@RequestBody Turno turno) {
-        Optional<Turno> turnoBuscado = turnoService.buscarTurnoPorId(turno.getId());
-        if (turnoBuscado.isPresent()) {
-            turnoService.actualizarTurno(turno);
-            return ResponseEntity.ok("Se actualizó correctamente el turno con ID: " + turno.getId());
-        } else {
-            return ResponseEntity.badRequest().body("No se existe el turno con ID: " + turno.getId());
-        }
+    public ResponseEntity<?> actualizarTurno(@RequestBody TurnoDTO turnoDTO) throws ResourceNotFoundException {
+        turnoService.actualizarTurno(turnoDTO);
+        return ResponseEntity.ok(HttpStatus.OK);
     }
-
-
 
 }

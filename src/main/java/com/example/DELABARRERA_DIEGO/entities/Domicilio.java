@@ -2,6 +2,7 @@ package com.example.DELABARRERA_DIEGO.entities;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -22,5 +23,21 @@ public class Domicilio {
     @Column
     private String localidad;
 
+    public Domicilio() {
+    }
 
+    public Domicilio(String calle, String numero, String departamento, String localidad) {
+        this.calle = calle;
+        this.numero = numero;
+        this.departamento = departamento;
+        this.localidad = localidad;
+    }
+
+    public Domicilio(Long id, String calle, String numero, String departamento, String localidad) {
+        this.id = id;
+        this.calle = calle;
+        this.numero = numero;
+        this.departamento = departamento;
+        this.localidad = localidad;
+    }
 }
